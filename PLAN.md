@@ -6,15 +6,15 @@ Generated: 2026-05-29
 - [x] Fix all TypeScript errors (0 errors)
 - [x] Fix all build errors (build passes clean)
 - [x] Fix all import errors and missing modules
-- [ ] Landing page: email capture form writes to Supabase waitlist table (currently just toast)
-- [ ] Verify Supabase client initializes without error (check .env.local)
-- [ ] Verify auth flow works: signup → email confirm → login → dashboard redirect
-- [ ] Verify Stripe webhook handler returns 200
+- [x] Landing page: email capture form writes to Supabase waitlist table
+- [x] Verify Supabase client initializes without error (check .env.local)
+- [x] Verify auth flow works: signup → email confirm → login → dashboard redirect
+- [x] Verify Stripe webhook handler returns 200
 
 ## PHASE 2: COMPLETE MISSING FEATURES
 
 - [x] Landing page: hero section with email capture form
-- [ ] Landing page: email capture writes to Supabase waitlist table
+- [x] Landing page: email capture writes to Supabase waitlist table
 - [x] Landing page: comparison table PostPilot vs Hootsuite vs Buffer
 - [x] Landing page: pricing section with working Stripe checkout buttons
 - [x] Auth: magic link login working with Supabase
@@ -30,9 +30,9 @@ Generated: 2026-05-29
 - [x] Billing: plan display reads from subscriptions table
 - [x] Billing: upgrade button creates Stripe checkout session
 - [x] Settings: profile form saves to profiles table with success toast
-- [ ] All pages: loading skeletons on every data-loading section
-- [ ] All pages: error boundaries so one crash doesn't kill the whole page
-- [ ] All pages: empty states with helpful CTAs (not blank white boxes)
+- [x] All pages: loading skeletons on every data-loading section (7 loading.tsx files exist)
+- [ ] All pages: error boundaries so one crash doesn't kill the whole page (0 error.tsx files)
+- [x] All pages: empty states with helpful CTAs (dashboard, calendar, billing, settings, accounts all have them)
 
 ## PHASE 3: TESTING INFRASTRUCTURE
 
