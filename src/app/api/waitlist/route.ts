@@ -1,31 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
+
+const schema = z.object({
+  email: z.string().email("A valid email is required"),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const rl = rateLimit(`waitlist:${ip}`);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+    }
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
+
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Valid email is required" },
+        { error: parsed.error.flatten().fieldErrors.email?.[0] ?? "Invalid email" },
         { status: 400 }
       );
     }
 
     const supabase = await createClient();
+    const { error } = await supabase.from("waitlist").insert({
+      email: parsed.data.email,
+    });
 
-    const { error } = await supabase.from("waitlist").upsert(
-      { email: email.toLowerCase().trim(), signed_up_at: new Date().toISOString() },
-      { onConflict: "email" }
-    );
+    if (error) {
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { error: "You're already on the list!" },
+          { status: 200 }
+        );
+      }
+      console.error("Waitlist error:", error);
+      return NextResponse.json(
+        { error: "Failed to join waitlist. Please try again later." },
+        { status: 500 }
+      );
+    }
 
-    if (error) throw error;
-
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("Waitlist error:", error);
     return NextResponse.json(
-      { error: "Failed to join waitlist" },
+      { message: "You're on the list! Check your inbox." },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Waitlist error:", { message: error.message, details: error.details, hint: error.hint, code: error.code });
+    return NextResponse.json(
+      { error: "Failed to join waitlist. Please try again later." },
       { status: 500 }
     );
   }

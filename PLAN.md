@@ -63,12 +63,12 @@ Generated: 2026-05-29
 
 ## PHASE 5: FEATURE EXPANSION — AI UPGRADES
 
-- [ ] AI Month Generator: /dashboard/ai-month
-- [ ] AI Caption Optimizer: "Optimize" button per platform
-- [ ] AI Hashtag Suggester
-- [ ] Post Templates Library: /dashboard/templates
-- [ ] Competitor Monitor: /dashboard/competitors
-- [ ] Best Time Predictor: heatmap grid
+- [x] AI Month Generator: /dashboard/ai-month
+- [x] AI Caption Optimizer: /api/ai/optimize route
+- [x] AI Hashtag Suggester: /api/ai/hashtags route
+- [x] Post Templates Library: /dashboard/templates — 20 templates with categories
+- [x] Competitor Monitor: /dashboard/competitors — mock competitive data
+- [x] Best Time Predictor: /dashboard/best-time — heatmap grid per platform
 
 ## PHASE 6: POLISH & PRODUCTION HARDENING
 

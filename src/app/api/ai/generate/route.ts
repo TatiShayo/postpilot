@@ -2,11 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const schema = z.object({
+  businessDescription: z.string().min(1, "businessDescription is required"),
+  platform: z.string().min(1, "platform is required"),
+  tone: z.string().optional().default("professional"),
+  goal: z.string().optional().default("engagement"),
+  postsCount: z.number().min(1).max(10).optional().default(3),
+});
+
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const rl = rateLimit(ip);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -25,20 +41,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const {
-      businessDescription,
-      platform,
-      tone = "professional",
-      goal = "engagement",
-      postsCount = 3,
-    } = body;
-
-    if (!businessDescription || !platform) {
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Missing required fields: businessDescription, platform" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { businessDescription, platform, tone, goal, postsCount } = parsed.data;
 
     const systemPrompt = `You are a social media expert. Generate ${postsCount} engaging posts for ${platform}. 
 Business: ${businessDescription}. Tone: ${tone}. Goal: ${goal}. 
@@ -59,10 +70,10 @@ No preamble, no markdown, just valid JSON.`;
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(raw);
+    const parsedResponse = JSON.parse(raw);
 
     return NextResponse.json({
-      posts: parsed.posts ?? [],
+      posts: parsedResponse.posts ?? [],
     });
   } catch (error: any) {
     console.error("AI generation error:", error);

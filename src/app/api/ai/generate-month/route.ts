@@ -2,11 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
+import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const postSchema = z.object({
+  businessDescription: z.string().min(1, "businessDescription is required"),
+  platforms: z.array(z.string()).optional().default(["twitter"]),
+});
+
+const saveSchema = z.object({
+  posts: z.array(z.object({
+    content: z.string(),
+    platform: z.string(),
+    hashtags: z.string().optional(),
+    date: z.string(),
+    bestTime: z.string().optional(),
+  })).min(1),
+});
+
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const rl = rateLimit(`generate-month:${ip}`);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -25,14 +48,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { businessDescription, platforms = ["twitter"] } = body;
-
-    if (!businessDescription) {
+    const parsed = postSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "businessDescription is required" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { businessDescription, platforms } = parsed.data;
 
     const platformList = platforms.join(", ");
     const startDate = new Date();
@@ -69,10 +93,10 @@ No preamble, no markdown, just valid JSON.`;
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    const parsed = JSON.parse(raw);
+    const result = JSON.parse(raw);
 
     return NextResponse.json({
-      posts: parsed.posts ?? [],
+      posts: result.posts ?? [],
     });
   } catch (error: any) {
     console.error("AI month generation error:", error);
@@ -85,6 +109,12 @@ No preamble, no markdown, just valid JSON.`;
 
 export async function PUT(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+    const rl = rateLimit(`generate-month-put:${ip}`);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -95,14 +125,15 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { posts } = body;
-
-    if (!posts || !Array.isArray(posts) || posts.length === 0) {
+    const parsed = saveSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "posts array is required" },
+        { error: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { posts } = parsed.data;
 
     const dbPosts = posts.map((post: any) => ({
       user_id: user.id,

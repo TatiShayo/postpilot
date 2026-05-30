@@ -23,7 +23,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#09090f]">
       <Sidebar />
-      <main className="ml-[240px] min-h-screen p-6 lg:p-8">{children}</main>
+      <main id="main-content" className="ml-[240px] min-h-screen p-6 lg:p-8">{children}</main>
     </div>
   );
 }
