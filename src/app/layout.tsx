@@ -15,8 +15,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PostPilot — Social Media Management",
-  description: "AI-powered social media management for small business. Plan a month of content in 10 minutes.",
+  title: "PostPilot — AI Social Media Management for Small Business",
+  description:
+    "AI-powered social media management for small business. Plan a month of content in 10 minutes. Schedule posts, analyze performance, and grow your audience.",
+  openGraph: {
+    title: "PostPilot — AI Social Media Management",
+    description:
+      "Plan a month of social content in 10 minutes. AI-powered posting for Twitter/X, LinkedIn, Instagram, Facebook, and TikTok.",
+    type: "website",
+    siteName: "PostPilot",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PostPilot — AI Social Media Management",
+    description:
+      "Plan a month of social content in 10 minutes. AI-powered posting for Twitter/X, LinkedIn, Instagram, Facebook, and TikTok.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

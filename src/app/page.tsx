@@ -229,6 +229,21 @@ function FAQItem({ faq }: { faq: { q: string; a: string } }) {
 export default function LandingPage() {
   const [email, setEmail] = useState("");
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "PostPilot",
+    applicationCategory: "SocialMediaApplication",
+    operatingSystem: "Web",
+    description:
+      "AI-powered social media management for small business. Plan a month of content in 10 minutes.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
@@ -253,6 +268,10 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#09090f]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <LandingNavbar />
 
       {/* ===== HERO ===== */}

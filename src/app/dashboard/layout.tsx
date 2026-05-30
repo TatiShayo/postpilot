@@ -1,6 +1,12 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/sidebar";
+
+export const metadata: Metadata = {
+  title: "Dashboard — PostPilot",
+  description: "Manage your social media posts, schedule content, and track analytics with PostPilot.",
+};
 
 export default async function DashboardLayout({
   children,
