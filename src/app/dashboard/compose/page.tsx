@@ -20,6 +20,8 @@ import {
   Save,
   Eye,
   ChevronDown,
+  Share2,
+  Download,
 } from "lucide-react";
 import type { Platform } from "@/lib/types";
 import { PLATFORM_CONFIG, ALL_PLATFORMS } from "@/lib/types";
@@ -207,6 +209,39 @@ export default function ComposePage() {
     }
 
     setSaving(false);
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!content.trim()) {
+      toast.error("Add content before sharing.");
+      return;
+    }
+    const text = encodeURIComponent(content);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
+  };
+
+  const handleExportImage = async () => {
+    if (!content.trim()) {
+      toast.error("Add content before exporting.");
+      return;
+    }
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      const el = document.createElement("div");
+      el.style.cssText =
+        "width:1080px;height:1080px;background:#111118;padding:80px;display:flex;flex-direction:column;justify-content:center;font-family:sans-serif;";
+      el.innerHTML = `<p style="color:#e4e4e7;font-size:48px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word;">${content.replace(/\n/g, "<br>")}</p>`;
+      document.body.appendChild(el);
+      const canvas = await html2canvas(el, { scale: 2 });
+      document.body.removeChild(el);
+      const link = document.createElement("a");
+      link.download = "postpilot-post.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Image exported!");
+    } catch {
+      toast.error("Export failed. Try a different browser.");
+    }
   };
 
   return (
@@ -485,6 +520,24 @@ export default function ComposePage() {
                 <Clock className="w-4 h-4 mr-2" />
               )}
               {scheduleType === "now" ? "Post Now" : "Schedule Post"}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="border-[#1c1c2e]"
+              onClick={handleShareWhatsApp}
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              WhatsApp
+            </Button>
+
+            <Button
+              variant="outline"
+              className="border-[#1c1c2e]"
+              onClick={handleExportImage}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export PNG
             </Button>
           </div>
         </div>

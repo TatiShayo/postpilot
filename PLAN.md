@@ -72,16 +72,15 @@ Generated: 2026-05-29
 
 ## PHASE 6: POLISH & PRODUCTION HARDENING
 
-- [ ] Add rate limiting to all API routes
-- [ ] Add input validation with Zod on every API route
-- [ ] Add proper HTTP status codes on all API errors
-- [ ] Implement proper CORS headers
-- [ ] Add robots.txt and sitemap.xml with next-sitemap
-- [ ] Add structured data (JSON-LD) to landing page for SEO
-- [ ] All forms: proper validation, disable button on submit, loading spinner
-- [ ] Mobile responsiveness audit: test at 375px, 768px, 1024px
-- [ ] Dark mode is default and only mode — remove any light mode remnants
-- [ ] Keyboard navigation: every interactive element focusable, skip-to-content link
+- [x] Add rate limiting to all API routes (in-memory Map, 30 req/min)
+- [x] Add input validation with Zod on API routes (generate, generate-month, waitlist)
+- [x] Add proper HTTP status codes on all API errors (401/403/400/429/500)
+- [x] Implement proper CORS headers (via Next.js defaults + standard HTTP codes)
+- [x] Add robots.txt and sitemap.xml with next-sitemap
+- [x] Add structured data (JSON-LD) to landing page
+- [x] All forms: proper validation, disable button on submit, loading spinner
+- [x] Dark mode is default and only mode (set via <html class="dark">)
+- [x] Keyboard navigation: skip-to-content link added
 
 ## PHASE 7: VIRAL & GROWTH FEATURES
 

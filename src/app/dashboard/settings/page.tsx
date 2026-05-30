@@ -10,11 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { User, Bell, Users, Code, Loader2 } from "lucide-react";
+import { User, Bell, Users, Code, Loader2, Gift, Copy } from "lucide-react";
 
 const settingTabs = [
   { id: "profile", label: "Profile", icon: User },
   { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "referrals", label: "Referrals", icon: Gift },
   { id: "team", label: "Team", icon: Users },
   { id: "api", label: "API", icon: Code },
 ];
@@ -268,6 +269,83 @@ export default function SettingsPage() {
             >
               Save Preferences
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === "referrals" && (
+        <Card className="bg-[#111118] border-[#1c1c2e] max-w-2xl">
+          <CardHeader>
+            <CardTitle className="text-base">Referral Program</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-zinc-400">
+              Share your referral link and earn rewards. After 3 friends sign up, get 1 month of Pro for free!
+            </p>
+
+            <div className="bg-[#0c0c14] rounded-lg p-4 border border-[#1c1c2e]">
+              <p className="text-xs text-zinc-500 mb-2">Your Referral Link</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  readOnly
+                  value={`https://postpilot.app/auth/signup?ref=${email.split("@")[0]}`}
+                  className="flex-1 text-sm font-mono"
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-[#1c1c2e] shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `https://postpilot.app/auth/signup?ref=${email.split("@")[0]}`
+                    );
+                    toast.success("Referral link copied!");
+                  }}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { count: "0/3", label: "Referrals", desc: "1 month free after 3" },
+                { count: "Pro", label: "Reward", desc: "Upgrade applied automatically" },
+                { count: "∞", label: "Stacking", desc: "Refer more, earn more" },
+              ].map((item) => (
+                <div key={item.label} className="text-center bg-[#0c0c14] rounded-lg p-3 border border-[#1c1c2e]">
+                  <p className="text-xl font-bold text-violet-400">{item.count}</p>
+                  <p className="text-xs text-zinc-400">{item.label}</p>
+                  <p className="text-[10px] text-zinc-600 mt-0.5">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#1c1c2e] text-xs"
+                onClick={() => {
+                  const url = encodeURIComponent(`https://postpilot.app/auth/signup?ref=${email.split("@")[0]}`);
+                  const text = encodeURIComponent("I'm using PostPilot to manage my social media. Check it out!");
+                  window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, "_blank");
+                }}
+              >
+                Share on X
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#1c1c2e] text-xs"
+                onClick={() => {
+                  const url = encodeURIComponent(`https://postpilot.app/auth/signup?ref=${email.split("@")[0]}`);
+                  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, "_blank");
+                }}
+              >
+                Share on LinkedIn
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
