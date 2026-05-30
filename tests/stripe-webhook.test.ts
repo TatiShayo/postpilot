@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 
 const mockConstructEvent = vi.fn();
 const mockSupabaseUpsert = vi.fn();
@@ -19,7 +20,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 describe("Stripe Webhook Handler", () => {
-  let handler: (req: Request) => Promise<Response>;
+  let handler: (req: NextRequest) => Promise<Response>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -38,7 +39,7 @@ describe("Stripe Webhook Handler", () => {
       throw new Error("Invalid signature");
     });
 
-    const req = new Request("http://localhost/api/webhooks/stripe", {
+    const req = new NextRequest("http://localhost/api/webhooks/stripe", {
       method: "POST",
       headers: { "stripe-signature": "bad_sig" },
       body: "{}",
@@ -81,7 +82,7 @@ describe("Stripe Webhook Handler", () => {
       upsert: vi.fn().mockResolvedValue({ error: null }),
     });
 
-    const req = new Request("http://localhost/api/webhooks/stripe", {
+    const req = new NextRequest("http://localhost/api/webhooks/stripe", {
       method: "POST",
       headers: { "stripe-signature": "valid_sig" },
       body: "{}",
@@ -114,7 +115,7 @@ describe("Stripe Webhook Handler", () => {
       }),
     });
 
-    const req = new Request("http://localhost/api/webhooks/stripe", {
+    const req = new NextRequest("http://localhost/api/webhooks/stripe", {
       method: "POST",
       headers: { "stripe-signature": "valid_sig" },
       body: "{}",
@@ -129,7 +130,7 @@ describe("Stripe Webhook Handler", () => {
       data: { object: {} },
     });
 
-    const req = new Request("http://localhost/api/webhooks/stripe", {
+    const req = new NextRequest("http://localhost/api/webhooks/stripe", {
       method: "POST",
       headers: { "stripe-signature": "valid_sig" },
       body: "{}",

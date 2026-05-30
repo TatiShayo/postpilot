@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 
 const mockChatCompletionsCreate = vi.fn();
 
@@ -28,7 +29,7 @@ vi.mock("@/lib/gate", () => ({
 }));
 
 describe("AI Generate API Route", () => {
-  let handler: (req: Request) => Promise<Response>;
+  let handler: (req: NextRequest) => Promise<Response>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -44,7 +45,7 @@ describe("AI Generate API Route", () => {
       },
     } as any);
 
-    const req = new Request("http://localhost/api/ai/generate", {
+    const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
       body: JSON.stringify({ businessDescription: "test", platform: "twitter" }),
     });
@@ -56,7 +57,7 @@ describe("AI Generate API Route", () => {
     const { checkAIAccess } = await import("@/lib/gate");
     vi.mocked(checkAIAccess).mockResolvedValueOnce(false);
 
-    const req = new Request("http://localhost/api/ai/generate", {
+    const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
       body: JSON.stringify({ businessDescription: "test", platform: "twitter" }),
     });
@@ -65,7 +66,7 @@ describe("AI Generate API Route", () => {
   });
 
   it("returns 400 when required fields are missing", async () => {
-    const req = new Request("http://localhost/api/ai/generate", {
+    const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
       body: JSON.stringify({}),
     });
@@ -92,7 +93,7 @@ describe("AI Generate API Route", () => {
       ],
     });
 
-    const req = new Request("http://localhost/api/ai/generate", {
+    const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
       body: JSON.stringify({
         businessDescription: "A coffee shop",
@@ -116,7 +117,7 @@ describe("AI Generate API Route", () => {
   it("returns 500 when OpenAI call fails", async () => {
     mockChatCompletionsCreate.mockRejectedValueOnce(new Error("API rate limit"));
 
-    const req = new Request("http://localhost/api/ai/generate", {
+    const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
       body: JSON.stringify({
         businessDescription: "A coffee shop",

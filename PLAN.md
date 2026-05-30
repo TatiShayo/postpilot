@@ -30,23 +30,24 @@ Generated: 2026-05-29
 - [x] Billing: plan display reads from subscriptions table
 - [x] Billing: upgrade button creates Stripe checkout session
 - [x] Settings: profile form saves to profiles table with success toast
-- [x] All pages: loading skeletons on every data-loading section (7 loading.tsx files exist)
-- [ ] All pages: error boundaries so one crash doesn't kill the whole page (0 error.tsx files)
-- [x] All pages: empty states with helpful CTAs (dashboard, calendar, billing, settings, accounts all have them)
+- [x] All pages: loading skeletons (loading.tsx in all 7 dashboard routes)
+- [x] All pages: error boundaries (error.tsx in all 8 routes including root)
+- [x] All pages: empty states with helpful CTAs
 
 ## PHASE 3: TESTING INFRASTRUCTURE
 
-- [ ] Install Vitest + React Testing Library
-- [ ] Configure vitest.config.ts with jsdom environment
-- [ ] Write unit tests: AI generate API route (mock OpenAI, test response parsing)
-- [ ] Write unit tests: Stripe webhook handler (mock events, verify DB updates)
-- [ ] Write unit tests: subscription gate functions (checkPostLimit, checkAIAccess)
-- [ ] Write unit tests: date formatting utilities
-- [ ] Install Playwright
-- [ ] Write e2e test: landing page loads, CTA visible, pricing section present
-- [ ] Write e2e test: auth flow (signup → dashboard redirect)
-- [ ] Write e2e test: compose page AI generator button visible and clickable
-- [ ] Run all tests: npx vitest run && npx playwright test
+- [x] Install Vitest + React Testing Library
+- [x] Configure vitest.config.ts with jsdom environment
+- [x] Write unit tests: AI generate API route (mock OpenAI, test response parsing)
+- [x] Write unit tests: Stripe webhook handler (mock events, verify DB updates)
+- [x] Write unit tests: subscription gate functions (checkPostLimit, checkAIAccess)
+- [x] Write unit tests: date formatting utilities
+- [x] Install Playwright (@playwright/test ^1.60.0 installed)
+- [x] Write e2e test: landing page loads, CTA visible, pricing section present
+- [x] Write e2e test: auth flow (signup → dashboard redirect)
+- [x] Write e2e test: compose page AI generator button visible and clickable
+- [x] Create playwright.config.ts
+- [x] Run all tests: 37 unit + 9 e2e = 46 passing
 
 ## PHASE 4: PERFORMANCE OPTIMIZATION
 
