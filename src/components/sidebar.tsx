@@ -13,6 +13,9 @@ import {
   CreditCard,
   Sparkles,
   LogOut,
+  Eye,
+  LayoutTemplate,
+  Clock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -25,6 +28,7 @@ import { SUBSCRIPTION_BADGE_CLASSES } from "@/lib/constants";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/compose", label: "Compose", icon: PenLine },
+  { href: "/dashboard/ai-month", label: "AI Month", icon: Sparkles },
   { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/accounts", label: "Accounts", icon: Users },
