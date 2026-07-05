@@ -84,8 +84,8 @@ Generated: 2026-05-29
 
 ## PHASE 7: VIRAL & GROWTH FEATURES
 
-- [ ] Public post showcase: /u/[username]
-- [ ] Referral system: referral links + tracking
-- [ ] Export as image: html2canvas
-- [ ] WhatsApp sharing button
-- [ ] Weekly email report: Supabase Edge Function + Resend
+- [x] Public post showcase: /u/[username] — published posts as public portfolio
+- [x] Referral system: referral links in settings + tracking
+- [x] Export as image: "Export PNG" button in compose (html2canvas)
+- [x] WhatsApp sharing: "WhatsApp" button in compose (wa.me share)
+- [x] Weekly email report: /api/email/weekly-report route via Resend

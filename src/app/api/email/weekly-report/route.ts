@@ -5,8 +5,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret || cronSecret.trim() === "") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

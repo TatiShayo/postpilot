@@ -68,7 +68,19 @@ create table waitlist (
 alter table profiles enable row level security;
 alter table social_accounts enable row level security;
 alter table posts enable row level security;
+alter table subscriptions enable row level security;
+alter table post_analytics enable row level security;
+alter table waitlist enable row level security;
 
 create policy "Users own their data" on profiles for all using (auth.uid() = id);
 create policy "Users own their data" on social_accounts for all using (auth.uid() = user_id);
 create policy "Users own their data" on posts for all using (auth.uid() = user_id);
+
+create policy "Users can view own subscription" on subscriptions for select using (auth.uid() = user_id);
+create policy "Users can view analytics of own posts" on post_analytics for select using (
+  exists (
+    select 1 from posts
+    where posts.id = post_analytics.post_id and posts.user_id = auth.uid()
+  )
+);
+create policy "Anyone can join waitlist" on waitlist for insert with check (true);

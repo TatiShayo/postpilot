@@ -17,6 +17,9 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn().mockResolvedValue({
     from: mockSupabaseFrom,
   }),
+  createAdminClient: vi.fn().mockReturnValue({
+    from: mockSupabaseFrom,
+  }),
 }));
 
 describe("Stripe Webhook Handler", () => {

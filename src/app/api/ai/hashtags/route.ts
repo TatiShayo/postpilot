@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
+import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const schema = z.object({
+  content: z.string().min(1, "content is required").max(4999, "content must be under 5000 characters"),
+  platform: z.enum(["twitter", "linkedin", "instagram", "facebook", "tiktok"]).optional().default("twitter"),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,8 +27,16 @@ export async function POST(request: NextRequest) {
     const hasAccess = await checkAIAccess();
     if (!hasAccess) return NextResponse.json({ error: "Requires Pro or Business plan" }, { status: 403 });
 
-    const { content, platform = "twitter" } = await request.json();
-    if (!content) return NextResponse.json({ error: "content is required" }, { status: 400 });
+    const body = await request.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const { content, platform } = parsed.data;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
