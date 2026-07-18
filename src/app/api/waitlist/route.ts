@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
       { message: "You're on the list! Check your inbox." },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error("Waitlist error:", { message: error.message, details: error.details, hint: error.hint, code: error.code });
+  } catch (error) {
+    console.error("Waitlist error:", error);
     return NextResponse.json(
       { error: "Failed to join waitlist. Please try again later." },
       { status: 500 }

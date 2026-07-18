@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ImpressionsChart, EngagementChart } from "@/components/analytics-charts";
@@ -26,14 +26,11 @@ const dateRangeMap: Record<DateRange, number> = {
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState<DateRange>("30d");
-  const [timeSeriesData, setTimeSeriesData] = useState<any[]>([]);
-  const [engagementData, setEngagementData] = useState<any[]>([]);
-
-  useEffect(() => {
-    const days = dateRangeMap[dateRange];
-    setTimeSeriesData(generateTimeSeriesData(days));
-    setEngagementData(generateEngagementByPlatform());
-  }, [dateRange]);
+  const timeSeriesData = useMemo(
+    () => generateTimeSeriesData(dateRangeMap[dateRange]),
+    [dateRange]
+  );
+  const engagementData = useMemo(() => generateEngagementByPlatform(), []);
 
   const totalImpressions = timeSeriesData.reduce(
     (sum, day) =>

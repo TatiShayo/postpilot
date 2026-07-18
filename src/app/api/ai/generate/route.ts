@@ -58,7 +58,7 @@ ${PROMPT_INJECTION_GUARD}`;
     return NextResponse.json({
       posts: parsedResponse.posts ?? [],
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("AI generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate content. Please try again." },

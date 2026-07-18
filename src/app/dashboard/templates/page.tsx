@@ -219,7 +219,7 @@ export default function TemplatesPage() {
     });
   };
 
-  const useTemplate = (template: Template) => {
+  const applyTemplate = (template: Template) => {
     sessionStorage.setItem(
       "composeTemplate",
       JSON.stringify({ content: template.example, platforms: template.platforms })
@@ -292,7 +292,7 @@ export default function TemplatesPage() {
                   className="text-xs border-[#1c1c2e] h-8"
                   onClick={(e) => {
                     e.stopPropagation();
-                    useTemplate(template);
+                    applyTemplate(template);
                   }}
                 >
                   Use Template

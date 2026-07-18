@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import type { Platform, Post } from "@/lib/types";
 import { ALL_PLATFORMS } from "@/lib/types";
 
 export default function CalendarPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [posts, setPosts] = useState<Post[]>([]);
@@ -41,12 +41,7 @@ export default function CalendarPage() {
     new Set(ALL_PLATFORMS)
   );
 
-  useEffect(() => {
-    fetchPosts();
-  }, [currentDate]);
-
-  const fetchPosts = async () => {
-    setLoading(true);
+  const fetchPosts = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -69,7 +64,11 @@ export default function CalendarPage() {
 
     setPosts(data ?? []);
     setLoading(false);
-  };
+  }, [supabase, currentDate]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);

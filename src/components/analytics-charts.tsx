@@ -15,7 +15,7 @@ import {
 import { PLATFORM_COLORS } from "@/lib/constants";
 import { ALL_PLATFORMS } from "@/lib/types";
 
-export function ImpressionsChart({ data }: { data: any[] }) {
+export function ImpressionsChart({ data }: { data: Record<string, number | string>[] }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>
@@ -53,7 +53,11 @@ export function ImpressionsChart({ data }: { data: any[] }) {
   );
 }
 
-export function EngagementChart({ data }: { data: any[] }) {
+export function EngagementChart({
+  data,
+}: {
+  data: { platform: string; likes: number; comments: number; shares: number }[];
+}) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data}>

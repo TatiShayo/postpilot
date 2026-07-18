@@ -85,7 +85,9 @@ export default function ComposePage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    const path = `post-media/${user.id}/${Date.now()}-${file.name}`;
+    // Strip path separators / traversal sequences from the untrusted filename.
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
+    const path = `post-media/${user.id}/${Date.now()}-${safeName}`;
     const { error } = await supabase.storage
       .from("post-media")
       .upload(path, file);
@@ -138,15 +140,16 @@ export default function ComposePage() {
       const data = await res.json();
       setAiResults(data.posts ?? []);
       toast.success("AI generated 3 post variations!");
-    } catch (err: any) {
-      setAiError(err.message);
-      toast.error(err.message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Generation failed";
+      setAiError(message);
+      toast.error(message);
     }
 
     setAiGenerating(false);
   };
 
-  const useAiPost = (post: AIGeneratedPost) => {
+  const applyAiPost = (post: AIGeneratedPost) => {
     setContent(post.content + "\n\n" + post.hashtags);
   };
 
@@ -624,7 +627,7 @@ export default function ComposePage() {
                     <Card
                       key={i}
                       className="bg-[#0c0c14] border-[#1c1c2e] p-3 hover:border-violet-500/30 transition-colors cursor-pointer"
-                      onClick={() => useAiPost(post)}
+                      onClick={() => applyAiPost(post)}
                     >
                       <p className="text-sm text-zinc-300 line-clamp-3">
                         {post.content}

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
     return NextResponse.json(JSON.parse(raw));
-  } catch (error: any) {
+  } catch (error) {
     console.error("Caption optimizer error:", error);
     return NextResponse.json({ error: "Failed to optimize caption. Please try again." }, { status: 500 });
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,16 +71,12 @@ const mockInvoices = [
 ];
 
 export default function BillingPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
   const [tier, setTier] = useState<SubscriptionTier>("free");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  useEffect(() => {
-    loadBilling();
-  }, []);
-
-  const loadBilling = async () => {
+  const loadBilling = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -97,7 +93,11 @@ export default function BillingPage() {
 
     setTier(profile?.subscription_tier ?? "free");
     setLoading(false);
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    loadBilling();
+  }, [loadBilling]);
 
   const handleCheckout = async (plan: "pro" | "business") => {
     setCheckoutLoading(true);

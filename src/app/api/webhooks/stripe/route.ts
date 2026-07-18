@@ -15,8 +15,9 @@ export async function POST(request: NextRequest) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown error";
+    console.error("Webhook signature verification failed:", message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -78,7 +79,8 @@ export async function POST(request: NextRequest) {
             plan: tier,
             status: subscription.status,
             current_period_end: new Date(
-              (subscription as any).current_period_end * 1000
+              (subscription as unknown as { current_period_end: number })
+                .current_period_end * 1000
             ).toISOString(),
           });
         }
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Webhook handler error:", error);
     return NextResponse.json(
       { error: "Webhook handler failed. Please check server logs." },

@@ -82,7 +82,7 @@ ${PROMPT_INJECTION_GUARD}`;
     return NextResponse.json({
       posts: result.posts ?? [],
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("AI month generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate month plan. Please try again." },
@@ -139,7 +139,7 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json({ saved: dbPosts.length });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Bulk save error:", error);
     return NextResponse.json(
       { error: "Failed to save posts. Please try again." },

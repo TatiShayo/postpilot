@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,18 +35,14 @@ const platformNames: Record<Platform, string> = {
 };
 
 export default function AccountsPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [connectModal, setConnectModal] = useState<Platform | null>(null);
   const [connectUsername, setConnectUsername] = useState("");
   const [connecting, setConnecting] = useState(false);
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     setLoading(true);
     const {
       data: { user },
@@ -64,7 +60,11 @@ export default function AccountsPage() {
 
     setAccounts(data ?? []);
     setLoading(false);
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
   const handleConnect = async () => {
     if (!connectModal || !connectUsername.trim()) return;

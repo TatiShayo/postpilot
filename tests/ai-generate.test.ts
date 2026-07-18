@@ -11,7 +11,7 @@ vi.mock("openai", () => {
           create: mockChatCompletionsCreate,
         },
       };
-      constructor(_opts: any) {}
+      constructor(_opts: unknown) {}
     },
   };
 });
@@ -44,7 +44,7 @@ describe("AI Generate API Route", () => {
       auth: {
         getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
       },
-    } as any);
+    } as unknown as Awaited<ReturnType<typeof createClient>>);
 
     const req = new NextRequest("http://localhost/api/ai/generate", {
       method: "POST",
