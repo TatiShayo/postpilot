@@ -1,7 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { timingSafeEqual } from "crypto";
+import { z } from "zod";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string().max(200).optional(),
+  stats: z
+    .object({
+      postsPublished: z.number().optional(),
+      postsScheduled: z.number().optional(),
+      totalEngagement: z.number().optional(),
+      topPost: z.string().max(2000).optional(),
+    })
+    .optional(),
+});
+
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,15 +33,15 @@ export async function POST(request: NextRequest) {
     }
 
     const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    if (!authHeader || !safeEqual(authHeader, `Bearer ${cronSecret}`)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { email, name, stats } = await request.json();
-
-    if (!email) {
-      return NextResponse.json({ error: "email is required" }, { status: 400 });
+    const parsed = schema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
+    const { email, name, stats } = parsed.data;
 
     const { data, error } = await resend.emails.send({
       from: "PostPilot <weekly@postpilot.app>",

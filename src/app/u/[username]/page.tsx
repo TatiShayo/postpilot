@@ -23,8 +23,8 @@ export default async function PublicProfilePage({
   const supabase = await createClient();
 
   const { data: profiles } = await supabase
-    .from("profiles")
-    .select("*")
+    .from("public_profiles")
+    .select("id, username, full_name, avatar_url")
     .eq("username", username)
     .limit(1);
 
@@ -86,7 +86,7 @@ export default async function PublicProfilePage({
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="outline" className="text-[10px] border-zinc-700 text-zinc-400">
-                    {PLATFORM_CONFIG[post.platform as Platform]?.name || post.platform}
+                    {PLATFORM_CONFIG[post.platforms?.[0] as Platform]?.name || post.platforms?.[0] || "post"}
                   </Badge>
                   {post.published_at && (
                     <span className="text-[10px] text-zinc-600">

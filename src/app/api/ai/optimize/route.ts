@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
 import { z } from "zod";
-import { rateLimit } from "@/lib/rate-limit";
+import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -23,18 +21,8 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-    const rl = rateLimit(`optimize:${ip}`);
-    if (!rl.allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const hasAccess = await checkAIAccess();
-    if (!hasAccess) return NextResponse.json({ error: "Requires Pro or Business plan" }, { status: 403 });
+    const guard = await guardAIRequest(request, "ai-optimize");
+    if (!guard.ok) return guard.response;
 
     const body = await request.json();
     const parsed = schema.safeParse(body);
@@ -52,8 +40,8 @@ export async function POST(request: NextRequest) {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: `You are a ${platform} content optimizer. Rewrite the post to be more effective. ${guide} Goal: ${goal}. Return JSON: { "optimized": "rewritten post text", "hashtags": "hashtag string", "changes": "brief explanation of what was improved" }` },
-        { role: "user", content: `Original post: "${content}"` },
+        { role: "system", content: `You are a ${platform} content optimizer. Rewrite the post in the ORIGINALPOST block to be more effective. ${guide} Goal: ${goal}. Return JSON: { "optimized": "rewritten post text", "hashtags": "hashtag string", "changes": "brief explanation of what was improved" }\n${PROMPT_INJECTION_GUARD}` },
+        { role: "user", content: `Rewrite this post:\n${wrapUntrusted("originalPost", content)}` },
       ],
       max_tokens: 600,
       response_format: { type: "json_object" },

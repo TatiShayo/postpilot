@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
+import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -24,28 +24,8 @@ const saveSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-    const rl = rateLimit(`generate-month:${ip}`);
-    if (!rl.allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const hasAccess = await checkAIAccess();
-    if (!hasAccess) {
-      return NextResponse.json(
-        { error: "AI access requires a Pro or Business plan." },
-        { status: 403 }
-      );
-    }
+    const guard = await guardAIRequest(request, "ai-generate-month");
+    if (!guard.ok) return guard.response;
 
     const body = await request.json();
     const parsed = postSchema.safeParse(body);
@@ -66,7 +46,7 @@ export async function POST(request: NextRequest) {
       return d.toISOString().split("T")[0];
     });
 
-    const systemPrompt = `You are a social media strategist. Generate 30 post ideas for a business described below.
+    const systemPrompt = `You are a social media strategist. Generate 30 post ideas for the business described in the BUSINESSDESCRIPTION block.
 Schedule one post per day for the next 30 days, distributing across these platforms: ${platformList}.
 Each day should have ONE post. Alternate between platforms naturally.
 
@@ -77,7 +57,8 @@ Return a JSON object with a "posts" array of exactly 30 items. Each item must ha
 - hashtags: relevant hashtags
 - bestTime: suggested posting time (e.g. "9:00 AM")
 
-No preamble, no markdown, just valid JSON.`;
+No preamble, no markdown, just valid JSON.
+${PROMPT_INJECTION_GUARD}`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -85,7 +66,10 @@ No preamble, no markdown, just valid JSON.`;
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Business: ${businessDescription}\nPlatforms: ${platformList}\nGenerate 30 daily post ideas.`,
+          content: `Platforms: ${platformList}\nGenerate 30 daily post ideas.\n${wrapUntrusted(
+            "businessDescription",
+            businessDescription
+          )}`,
         },
       ],
       max_tokens: 8000,
@@ -135,10 +119,10 @@ export async function PUT(request: NextRequest) {
 
     const { posts } = parsed.data;
 
-    const dbPosts = posts.map((post: any) => ({
+    const dbPosts = posts.map((post) => ({
       user_id: user.id,
       content: post.content,
-      platform: post.platform,
+      platforms: post.platform ? [post.platform] : [],
       hashtags: post.hashtags,
       scheduled_at: `${post.date}T${post.bestTime?.replace(/:00 /, ":00") || "09:00:00"}`,
       status: "scheduled",

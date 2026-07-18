@@ -26,6 +26,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/lib/gate", () => ({
   checkAIAccess: vi.fn().mockResolvedValue(true),
+  enforceAIQuota: vi.fn().mockResolvedValue({ ok: true }),
 }));
 
 describe("AI Generate API Route", () => {

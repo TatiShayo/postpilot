@@ -22,6 +22,26 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
 
+  // Idempotency guard: Stripe may deliver the same event more than once (retries,
+  // at-least-once delivery) and events can be replayed by an attacker who captures
+  // a valid signed payload. Record every processed event id; a duplicate insert
+  // (unique-violation 23505) means we've already handled it — ack and stop before
+  // re-provisioning the subscription.
+  const { error: dedupeError } = await supabase
+    .from("stripe_events")
+    .insert({ id: event.id, type: event.type });
+
+  if (dedupeError) {
+    if (dedupeError.code === "23505") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    console.error("Webhook idempotency check failed:", dedupeError.message);
+    return NextResponse.json(
+      { error: "Webhook handler failed. Please check server logs." },
+      { status: 500 }
+    );
+  }
+
   try {
     switch (event.type) {
       case "customer.subscription.created":

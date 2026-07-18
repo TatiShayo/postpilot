@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { checkAIAccess } from "@/lib/gate";
 import OpenAI from "openai";
 import { z } from "zod";
-import { rateLimit } from "@/lib/rate-limit";
+import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -17,28 +15,8 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-    const rl = rateLimit(ip);
-    if (!rl.allowed) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const hasAccess = await checkAIAccess();
-    if (!hasAccess) {
-      return NextResponse.json(
-        { error: "AI access requires a Pro or Business plan. Upgrade to continue." },
-        { status: 403 }
-      );
-    }
+    const guard = await guardAIRequest(request, "ai-generate");
+    if (!guard.ok) return guard.response;
 
     const body = await request.json();
     const parsed = schema.safeParse(body);
@@ -51,10 +29,12 @@ export async function POST(request: NextRequest) {
 
     const { businessDescription, platform, tone, goal, postsCount } = parsed.data;
 
-    const systemPrompt = `You are a social media expert. Generate ${postsCount} engaging posts for ${platform}. 
-Business: ${businessDescription}. Tone: ${tone}. Goal: ${goal}. 
+    const systemPrompt = `You are a social media expert. Generate ${postsCount} engaging posts for ${platform}.
+Tone: ${tone}. Goal: ${goal}.
+The business is described in the BUSINESSDESCRIPTION block below.
 Return a JSON object with a "posts" array. Each post object must have: content, hashtags, bestTime.
-No preamble, no markdown, just valid JSON.`;
+No preamble, no markdown, just valid JSON.
+${PROMPT_INJECTION_GUARD}`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -62,7 +42,10 @@ No preamble, no markdown, just valid JSON.`;
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Generate ${postsCount} social media posts for ${platform}.`,
+          content: `Generate ${postsCount} social media posts for ${platform}.\n${wrapUntrusted(
+            "businessDescription",
+            businessDescription
+          )}`,
         },
       ],
       max_tokens: 2000,
