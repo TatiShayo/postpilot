@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PostPilot
 
-## Getting Started
+AI-assisted social-media management for solo founders and small teams. Compose
+and schedule posts across platforms, generate a month of content with AI, track
+analytics, and manage billing — in one dashboard.
 
-First, run the development server:
+> Portfolio project. Built on Next.js 16 + Supabase + Stripe + OpenAI, with a
+> security-first backend (atomic AI quotas, idempotent webhooks, RLS everywhere).
+
+## Features
+
+- **AI content studio** — generate post variations, a full 30-day plan, caption
+  optimization, and ranked hashtag suggestions (OpenAI `gpt-4o-mini`, JSON mode).
+- **Compose & schedule** — multi-platform composer with per-platform character
+  limits, media upload, live preview, image export, WhatsApp share.
+- **Calendar & analytics** — month calendar of scheduled/published posts;
+  impressions & engagement charts.
+- **Public portfolio** — shareable `/u/<username>` page of published posts.
+- **Billing** — Stripe Checkout + Billing Portal; Free / Pro / Business tiers
+  with enforced post, platform, and AI-usage limits.
+- **Waitlist + weekly email report** (Resend).
+
+## Tech stack
+
+Next.js 16 (App Router, React 19, Turbopack) · TypeScript · Supabase
+(Postgres + Auth + Storage, RLS) · Stripe · OpenAI · Resend · Tailwind +
+shadcn/ui · Recharts · Vitest · Playwright.
+
+## Security highlights
+
+- **Denial-of-wallet protection** — every paid AI call passes a single guard:
+  auth → tier → per-user rate limit → **atomic** per-user monthly quota
+  (Postgres RPC). Fails closed.
+- **Idempotent Stripe webhooks** — signature verification + an event-id ledger
+  that blocks replays / double-provisioning.
+- **RLS default-deny** on every table; a column-limited `public_profiles` view
+  powers the public portfolio without leaking billing data.
+- **Prompt-injection hardening** — user content is delimited and treated as data.
+- Security headers (CSP, HSTS, X-Frame-Options, …) on all routes; zod validation
+  on API boundaries; constant-time secret comparison for the cron endpoint.
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) and
+[`REVIEW_FINDINGS.md`](./REVIEW_FINDINGS.md) for details.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.local.example .env.local   # fill in real values
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Apply the database schema to your Supabase project (in order):
+`supabase/schema.sql`, `supabase/storage-policy.sql`, then optionally
+`supabase/seed.sql`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Configure the Stripe webhook to POST `checkout.session.completed` and
+`customer.subscription.*` events to `/api/webhooks/stripe`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev      # http://localhost:3000
+```
 
-## Learn More
+### Environment variables
 
-To learn more about Next.js, take a look at the following resources:
+See `.env.local.example`. Required: Supabase URL + anon + service-role keys,
+Stripe secret + webhook secret + price IDs, `OPENAI_API_KEY`, `RESEND_API_KEY`,
+`CRON_SECRET`, `NEXT_PUBLIC_APP_URL`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts & checks
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev            # dev server
+npm run build          # production build
+npm run lint           # eslint
+npx tsc --noEmit       # typecheck
+npx vitest run         # unit tests
+npx playwright test    # e2e (auto-starts dev server)
+```
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Social posting and analytics are **simulated** — this is a product/portfolio
+  build, not wired to live platform APIs.
+- Rate limiting is in-memory (single instance). For multi-instance production,
+  swap `src/lib/rate-limit.ts` for a Redis/Upstash-backed limiter.

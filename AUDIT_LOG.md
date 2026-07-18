@@ -45,3 +45,56 @@
 ### MEDIUM — 7 dead dependencies removed
 **Removed:** `@base-ui/react`, `@hookform/resolvers`, `@stripe/stripe-js`, `@tanstack/react-table`, `cmdk`, `next-themes`, `react-hook-form` — all never imported or used.
 **File:** `package.json`
+
+---
+
+## ROUND 3 — Finalization Sweep (July 18, 2026)
+
+Full detail in `REVIEW_FINDINGS.md`. Summary of what was fixed + verified:
+
+### CRITICAL
+- **Denial-of-wallet (all AI routes):** added atomic per-user monthly quota
+  (`ai_usage` + `consume_ai_credit` RPC) enforced via a shared
+  `guardAIRequest()` (auth → tier → per-user rate limit → quota), fails closed.
+  Regression test `tests/ai-quota.test.ts`.
+  Files: `src/lib/ai-guard.ts` (NEW), `src/lib/gate.ts`, `supabase/schema.sql`,
+  all 4 `api/ai/*/route.ts`.
+- **Stripe webhook replay (proven abuse chain):** added `stripe_events`
+  idempotency ledger; duplicate delivery acks `200` without re-provisioning.
+  Regression test in `tests/stripe-webhook.test.ts`.
+  Files: `api/webhooks/stripe/route.ts`, `supabase/schema.sql`.
+
+### HIGH
+- **Public portfolio leak/breakage:** `public_profiles` view (safe columns only)
+  + published-post public RLS; `u/[username]` reads the view.
+- **Build broken:** removed stale `src/middleware.ts` (Next 16 uses `proxy.ts`);
+  renamed export `proxyConfig`→`config` so the auth proxy is actually wired.
+- **Module-scope clients crashed build/tests:** lazy `getOpenAI()`, lazy Stripe
+  `Proxy`, lazy `getResend()`.
+
+### MEDIUM
+- Prompt-injection delimiters on all AI routes (`wrapUntrusted` + guard text).
+- `email/weekly-report`: constant-time `CRON_SECRET` compare + zod.
+- Rate limiting added to `stripe/checkout` + `stripe/portal`.
+- Schema drift fixed: `posts.hashtags` column added; `generate-month` PUT writes
+  `platforms[]`; public page reads `platforms[0]`.
+- Performance indexes on all FKs + `stripe_customer_id` + `username` + published posts.
+- Upload filename sanitized (path-traversal defense-in-depth) in `compose`.
+
+### Hygiene
+- Cleared all 29 ESLint errors (no-explicit-any, rules-of-hooks renames,
+  immutability data-loaders via useCallback/useMemo, analytics via useMemo).
+  `set-state-in-effect` downgraded to warn (accepted async-fetch pattern).
+
+### GATE (final, all foreground)
+- `tsc --noEmit` — PASS
+- `eslint` — PASS (0 errors, 34 warnings)
+- `next build` (NODE_OPTIONS=--max-old-space-size=4096) — PASS
+- `vitest run` — PASS (40/40)
+- `playwright test` — PASS (9/9)
+
+**Full gate: GREEN.**
+
+### Deliberately deferred
+- In-memory rate limiter (single-instance only; production → Redis/Upstash).
+- Live social integrations / analytics (simulated by design).
