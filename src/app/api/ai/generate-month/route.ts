@@ -101,7 +101,7 @@ No preamble, no markdown, just valid JSON.`;
   } catch (error: any) {
     console.error("AI month generation error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to generate month plan" },
+      { error: "Failed to generate month plan. Please try again." },
       { status: 500 }
     );
   }
@@ -158,7 +158,7 @@ export async function PUT(request: NextRequest) {
   } catch (error: any) {
     console.error("Bulk save error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to save posts" },
+      { error: "Failed to save posts. Please try again." },
       { status: 500 }
     );
   }

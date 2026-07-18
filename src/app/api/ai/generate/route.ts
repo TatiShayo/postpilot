@@ -78,7 +78,7 @@ No preamble, no markdown, just valid JSON.`;
   } catch (error: any) {
     console.error("AI generation error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to generate content" },
+      { error: "Failed to generate content. Please try again." },
       { status: 500 }
     );
   }

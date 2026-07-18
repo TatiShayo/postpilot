@@ -75,6 +75,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ sent: true, id: data?.id });
   } catch (error: any) {
     console.error("Weekly report error:", error);
-    return NextResponse.json({ error: error.message || "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to process weekly report." }, { status: 500 });
   }
 }

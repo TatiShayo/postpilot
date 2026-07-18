@@ -72,7 +72,25 @@ alter table subscriptions enable row level security;
 alter table post_analytics enable row level security;
 alter table waitlist enable row level security;
 
+-- RLS policies
 create policy "Users own their data" on profiles for all using (auth.uid() = id);
+
+-- Auto-create profile on signup (was missing — broke all gating)
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, subscription_tier)
+  values (new.id, 'free');
+  return new;
+end;
+$$;
+
+create or replace trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 create policy "Users own their data" on social_accounts for all using (auth.uid() = user_id);
 create policy "Users own their data" on posts for all using (auth.uid() = user_id);
 

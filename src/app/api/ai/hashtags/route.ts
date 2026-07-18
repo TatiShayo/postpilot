@@ -52,6 +52,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(JSON.parse(raw));
   } catch (error: any) {
     console.error("Hashtag suggester error:", error);
-    return NextResponse.json({ error: error.message || "Failed to suggest hashtags" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to suggest hashtags. Please try again." }, { status: 500 });
   }
 }

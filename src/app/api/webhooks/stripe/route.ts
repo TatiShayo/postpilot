@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Webhook handler error:", error);
     return NextResponse.json(
-      { error: error.message || "Webhook handler failed" },
+      { error: "Webhook handler failed. Please check server logs." },
       { status: 500 }
     );
   }
