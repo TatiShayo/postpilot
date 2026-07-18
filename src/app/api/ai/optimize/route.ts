@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const platformGuides: Record<string, string> = {
   twitter: "Twitter/X style: concise, punchy, under 280 characters, use emojis sparingly, 1-2 relevant hashtags max.",
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const guide = platformGuides[platform] || platformGuides.twitter;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: `You are a ${platform} content optimizer. Rewrite the post in the ORIGINALPOST block to be more effective. ${guide} Goal: ${goal}. Return JSON: { "optimized": "rewritten post text", "hashtags": "hashtag string", "changes": "brief explanation of what was improved" }\n${PROMPT_INJECTION_GUARD}` },

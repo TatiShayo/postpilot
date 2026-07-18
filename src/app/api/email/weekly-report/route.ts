@@ -3,7 +3,9 @@ import { Resend } from "resend";
 import { timingSafeEqual } from "crypto";
 import { z } from "zod";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend(): Resend {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 const schema = z.object({
   email: z.string().email(),
@@ -43,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
     const { email, name, stats } = parsed.data;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: "PostPilot <weekly@postpilot.app>",
       to: [email],
       subject: `Your PostPilot Weekly Report — ${stats?.postsPublished || 0} posts this week`,

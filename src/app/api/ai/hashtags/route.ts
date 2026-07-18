@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const schema = z.object({
   content: z.string().min(1, "content is required").max(4999, "content must be under 5000 characters"),
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const { content, platform } = parsed.data;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: `You are a hashtag expert. Given the ${platform} post in the POST block, suggest 10-15 relevant hashtags ranked by estimated reach (highest first). Return JSON: { "hashtags": ["#tag1", "#tag2", ...] }\n${PROMPT_INJECTION_GUARD}` },

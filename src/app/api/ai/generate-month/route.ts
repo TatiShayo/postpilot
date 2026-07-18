@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import OpenAI from "openai";
+import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const postSchema = z.object({
   businessDescription: z.string().min(1, "businessDescription is required"),
@@ -60,7 +59,7 @@ Return a JSON object with a "posts" array of exactly 30 items. Each item must ha
 No preamble, no markdown, just valid JSON.
 ${PROMPT_INJECTION_GUARD}`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
