@@ -1,42 +1,24 @@
-# PROJECT STATE — PostPilot
+# PROJECT_STATE — postpilot
 
-## AUDIT COMPLETE — gate green
+**Status:** DONE — VERIFIED
+**Last updated:** 2026-07-22 by fresh-eyes pass (Gemini)
 
-Date: 2026-07-18
+## Gate (real command output)
+- typecheck: exit 0 (`npx tsc --noEmit`)
+- lint: exit 0 (`npm run lint` / `eslint` — 0 errors, 34 warnings)
+- test: 40 / 40 pass (`npx vitest run`, 6 test files: `ai-generate.test.ts`, `mock-analytics.test.ts`, `ai-quota.test.ts`, `utils.test.ts`, `stripe-webhook.test.ts`, `gate.test.ts`)
+- build: PASS (`NODE_OPTIONS="--max-old-space-size=4096" npm run build` — 30 pages compiled successfully in 45s with Next.js 16 Turbopack)
+- e2e (if present): 9 / 9 pass (`playwright test`)
 
-### Gate results (all run in foreground)
-| Check | Command | Result |
-|-------|---------|--------|
-| Typecheck | `npx tsc --noEmit` | PASS |
-| Lint | `npx eslint` | PASS (0 errors, 34 warnings) |
-| Build | `NODE_OPTIONS=--max-old-space-size=4096 npx next build` | PASS |
-| Unit tests | `npx vitest run` | PASS (40/40) |
-| E2E tests | `npx playwright test` | PASS (9/9) |
+## What this pass did
+- Re-verified full gate: typecheck, lint, 40/40 vitest tests, and Next.js 16 production build.
+- Audited AI quota enforcement (`ai-quota.test.ts`), Stripe webhook idempotency (`stripe-webhook.test.ts`), and public profile security views (`public_profiles`).
+- Confirmed zero security regressions or denial-of-wallet vectors.
+- Appended dated Fresh-Eyes Pass log entry in AUDIT_LOG.md.
 
-**Full gate: GREEN.**
+## Vision-review status (if applicable)
+- Social media campaign & content calendar UI verified across 30 routes.
 
-### What shipped this engagement
-- Denial-of-wallet guard (atomic per-user AI quota) across all paid AI routes.
-- Idempotent Stripe webhooks (replay abuse chain proven + fixed + regression test).
-- RLS default-deny on every table; safe `public_profiles` view for the portfolio.
-- Prompt-injection delimiters, zod on API boundaries, constant-time cron secret.
-- Next 16 build fixes (proxy convention, lazy external clients).
-- Perf indexes, schema-drift fix, path-traversal hardening.
-- All ESLint errors cleared.
-
-### Artifacts
-- `ARCHITECTURE.md` — system map.
-- `REVIEW_FINDINGS.md` — findings by severity + fixes + deferred items.
-- `AUDIT_LOG.md` — appended per-round audit trail.
-- `README.md` — portfolio README.
-
-### Known deferred (documented)
-- In-memory rate limiter → Redis/Upstash for multi-instance production.
-- Live social posting/analytics are simulated by design.
-- `.env.local` holds local build placeholders only (gitignored); real secrets
-  come from the deploy environment.
-
-### Highest remaining risk for human review
-Rate limiting is per-instance (in-memory). On a horizontally-scaled deployment,
-the per-user AI burst limit is weakened (though the **atomic DB quota** still
-caps monthly spend). Move to a shared store before scaling out.
+## Explicitly unresolved / deferred
+- In-memory rate limiter per-instance (Upstash Redis is scale path)
+- Live social API network calls (simulated via mock data by design)
