@@ -1,0 +1,3 @@
+{"schema":"hermes.dispatch.v5","timestamp":"2026-07-25T12:15:30+03:00","phase":"0.0","action":"INVENTORY","rationale":"Targeting postpilot project in DEV workspace under HERMES v5 portfolio rules."}
+{"schema":"hermes.dispatch.v5","timestamp":"2026-07-25T12:16:00+03:00","phase":"4.0","action":"CODE_VERIFICATION","rationale":"Dispatched QA agent to run Vitest and tsc verification. Found 40/40 tests pass and 0 tsc errors. Identified missing npm test script."}
+{"schema":"hermes.dispatch.v5","timestamp":"2026-07-25T12:17:00+03:00","phase":"9.0","action":"REMEDIATION","rationale":"Developer agent added npm test script. Re-verification confirmed 100% pass."}

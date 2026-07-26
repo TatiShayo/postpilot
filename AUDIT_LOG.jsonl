@@ -1,0 +1,3 @@
+{"schema":"hermes.delegation.v5","timestamp":"2026-07-25T12:15:30+03:00","delegator":"portfolio_orchestrator","delegatee":"project_lead_agent#postpilot","scope":"postpilot","capabilities":["read","write_worktree","execute_hermetic"],"ttl_seconds":3600}
+{"schema":"hermes.delegation.v5","timestamp":"2026-07-25T12:16:00+03:00","delegator":"project_lead_agent#postpilot","delegatee":"qa_agent#1","scope":"postpilot/src","capabilities":["read","write_tests","execute_hermetic"],"ttl_seconds":1800}
+{"schema":"hermes.delegation.v5","timestamp":"2026-07-25T12:17:00+03:00","delegator":"project_lead_agent#postpilot","delegatee":"developer_agent#1","scope":"postpilot/src","capabilities":["read","write_worktree","execute_hermetic"],"ttl_seconds":1800}

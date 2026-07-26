@@ -1,0 +1,56 @@
+{
+  "schema": "hermes.findings.v4",
+  "run_id": "hermes-2026-07-25-p502",
+  "project": "postpilot",
+  "phase": "8.0",
+  "produced_at": "2026-07-25T12:17:00+03:00",
+  "inputs_hash": "sha256:7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b",
+  "budget_spent": { "tokens": 98000, "wallclock_s": 240, "usd": 0.45 },
+  "findings": [
+    {
+      "id": "F-001",
+      "title": "Missing 'test' npm script definition in package.json",
+      "severity": "low",
+      "confidence_tier": "E2-P",
+      "actionability": "P4",
+      "confidence": 0.99,
+      "category": "correctness",
+      "cwe": "CWE-1025",
+      "locations": [
+        { "file": "package.json", "line": 9, "symbol": "scripts" }
+      ],
+      "provenance": [
+        { "source": "file:package.json", "trust": "repo" }
+      ],
+      "reproduction": {
+        "kind": "poc-script",
+        "path": "package.json",
+        "exit_criteria": "npm test executes vitest run cleanly"
+      },
+      "impact": "npm test command failed to execute Vitest suite due to missing script entry.",
+      "recommended_fix": "Add \"test\": \"vitest run\" to package.json scripts.",
+      "falsification": {
+        "status": "survived",
+        "by": "falsifier_agent#1",
+        "note": "Verified missing script entry in package.json. Fixed and confirmed."
+      },
+      "blast_radius": {
+        "reachable_from_internet": false,
+        "requires_auth": false,
+        "data_classes": []
+      },
+      "acceptance": {
+        "previously_accepted": false,
+        "context_hash": "sha256:1111222233334444555566667777888899990000",
+        "accepted_reason": null
+      },
+      "provenance_chain": {
+        "run_id": "hermes-2026-07-25-p502",
+        "agent": "qa_agent#1",
+        "poc": "npm test",
+        "fix_commit": "HEAD",
+        "regression_test": "npm test"
+      }
+    }
+  ]
+}

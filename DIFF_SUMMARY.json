@@ -1,0 +1,21 @@
+{
+  "schema": "hermes.diff.v4",
+  "run_id": "hermes-2026-07-25-p502",
+  "files_changed": 1,
+  "insertions": 1,
+  "deletions": 0,
+  "net_loc": 1,
+  "changes": [
+    {
+      "file": "package.json",
+      "intent": "fix",
+      "why": "Add missing npm test script definition mapping to vitest run",
+      "risk": "low"
+    }
+  ],
+  "new_dependencies": [],
+  "acceptance_criteria_addressed": ["AC-1"],
+  "deliberately_not_addressed": [],
+  "public_api_changed": false,
+  "migration_required": false
+}
