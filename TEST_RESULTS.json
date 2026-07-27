@@ -2,7 +2,7 @@
   "schema": "hermes.tests.v6",
   "run_id": "hermes-2026-07-27-v6-postpilot",
   "project": "postpilot",
-  "produced_at": "2026-07-27T22:06:25.679556",
+  "produced_at": "2026-07-27T22:23:56.838235",
   "summary": {
     "status": "RUNNABLE",
     "passed": 1,
