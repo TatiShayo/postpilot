@@ -3,7 +3,7 @@
   "run_id": "hermes-2026-07-27-v6-postpilot",
   "project": "postpilot",
   "phase": "4.0",
-  "produced_at": "2026-07-27T22:24:51.113508",
+  "produced_at": "2026-07-27T22:25:43.248588",
   "runner_tier": "T1",
   "mode": "static-only",
   "findings": []
