@@ -1,47 +1,21 @@
 {
-  "schema": "hermes.tests.v4",
-  "run_id": "hermes-2026-07-25-p502",
-  "status": "pass",
-  "counts": {
-    "passed": 40,
+  "schema": "hermes.tests.v6",
+  "run_id": "hermes-2026-07-27-v6-postpilot",
+  "project": "postpilot",
+  "produced_at": "2026-07-27T22:06:25.679556",
+  "summary": {
+    "status": "RUNNABLE",
+    "passed": 1,
     "failed": 0,
     "skipped": 0,
-    "flaky": 0
+    "unrunnable": 0
   },
-  "failures": [],
-  "coverage": {
-    "line_pct": 91.2,
-    "branch_pct": 87.5,
-    "uncovered_new_paths": []
-  },
-  "mutation": {
-    "mutants_generated": 45,
-    "mutants_killed": 42,
-    "score": 93.3,
-    "surviving_examples": []
-  },
-  "properties": [
+  "suites": [
     {
-      "name": "ai_quota_enforcement",
-      "invariant": "Rate limiter enforces 429 and halts OpenAI dispatch when user quota is exhausted",
-      "cases_run": 500,
-      "counterexample": null
-    },
-    {
-      "name": "stripe_webhook_replay_dedupe",
-      "invariant": "Replayed Stripe webhook events with duplicate IDs return 200 without duplicate provisioning",
-      "cases_run": 500,
-      "counterexample": null
+      "suite": "TypeScript Compilation",
+      "tool": "npx tsc --noEmit",
+      "status": "PASS",
+      "exit_code": 0
     }
-  ],
-  "performance": {
-    "baseline_ms": 2100,
-    "current_ms": 2080,
-    "regression_pct": -0.95
-  },
-  "environment": {
-    "hermetic": true,
-    "seed": 1337,
-    "external_hosts_contacted": []
-  }
+  ]
 }
