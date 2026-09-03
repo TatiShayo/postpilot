@@ -7,18 +7,18 @@ import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-
 
 
 const postSchema = z.object({
-  businessDescription: z.string().min(1, "businessDescription is required"),
-  platforms: z.array(z.string()).optional().default(["twitter"]),
+  businessDescription: z.string().min(1, "businessDescription is required").max(5000, "businessDescription cannot exceed 5000 characters"),
+  platforms: z.array(z.string().max(50)).max(10).optional().default(["twitter"]),
 });
 
 const saveSchema = z.object({
   posts: z.array(z.object({
-    content: z.string(),
-    platform: z.string(),
-    hashtags: z.string().optional(),
-    date: z.string(),
-    bestTime: z.string().optional(),
-  })).min(1),
+    content: z.string().max(10000),
+    platform: z.string().max(50),
+    hashtags: z.string().max(1000).optional(),
+    date: z.string().max(50),
+    bestTime: z.string().max(50).optional(),
+  })).min(1).max(100),
 });
 
 export async function POST(request: NextRequest) {

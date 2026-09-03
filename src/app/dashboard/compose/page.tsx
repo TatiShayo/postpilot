@@ -512,7 +512,7 @@ export default function ComposePage() {
             </Button>
             <Button
               onClick={() =>
-                handleSave(scheduleType === "now" ? "scheduled" : "scheduled")
+                handleSave(scheduleType === "now" ? "published" : "scheduled")
               }
               disabled={saving}
               className="bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 text-white border-0"

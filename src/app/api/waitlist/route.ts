@@ -4,7 +4,7 @@ import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
-  email: z.string().email("A valid email is required"),
+  email: z.string().email("A valid email is required").max(254, "Email must not exceed 254 characters"),
 });
 
 export async function POST(request: NextRequest) {

@@ -9,6 +9,24 @@ export type Platform =
 
 export type PostStatus = "draft" | "scheduled" | "published" | "failed";
 
+export type CampaignStatus =
+  | "draft"
+  | "scheduled"
+  | "queued"
+  | "sending"
+  | "paused"
+  | "completed"
+  | "failed"
+  | "canceled"
+  | "archived";
+
+export type SubscriberStatus =
+  | "active"
+  | "unsubscribed"
+  | "bounced"
+  | "complained"
+  | "pending";
+
 export interface Profile {
   id: string;
   username: string | null;
@@ -65,6 +83,103 @@ export interface Subscription {
   status: string;
   current_period_end: string | null;
   created_at: string;
+}
+
+export interface Subscriber {
+  id: string;
+  user_id: string;
+  email: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  tags: string[];
+  status: SubscriberStatus;
+  engagement_score: number;
+  custom_fields?: Record<string, string | number | boolean | null>;
+  unsubscribe_token?: string | null;
+  subscribed_at: string;
+  unsubscribed_at?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  user_id: string;
+  name: string;
+  subject: string;
+  body_html: string;
+  body_text?: string | null;
+  variables: string[];
+  category?: string;
+  is_default?: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface Campaign {
+  id: string;
+  user_id: string;
+  title: string;
+  subject: string;
+  preview_text?: string | null;
+  content_html: string;
+  content_text?: string | null;
+  template_id?: string | null;
+  status: CampaignStatus;
+  target_tags: string[];
+  scheduled_at?: string | null;
+  sent_at?: string | null;
+  total_recipients: number;
+  sent_count: number;
+  failed_count: number;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface EmailDeliveryJob {
+  id: string;
+  campaign_id: string;
+  subscriber_id: string;
+  recipient_email: string;
+  rendered_subject: string;
+  rendered_html: string;
+  rendered_text?: string;
+  status: "pending" | "sent" | "failed" | "retried";
+  error?: string;
+  attempts: number;
+  last_attempt_at?: string;
+  sent_at?: string;
+}
+
+export interface SubscriberFilter {
+  tags?: string[];
+  tagMatchMode?: "all" | "any" | "none";
+  status?: SubscriberStatus | SubscriberStatus[];
+  search?: string;
+  minEngagement?: number;
+  maxEngagement?: number;
+  createdAfter?: string;
+  createdBefore?: string;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface QueueBatchResult {
+  batchId: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  durationMs: number;
+  errors: Array<{ recipient: string; error: string; permanent: boolean }>;
 }
 
 export const PLATFORM_CONFIG: Record<

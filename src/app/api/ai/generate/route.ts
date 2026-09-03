@@ -5,10 +5,10 @@ import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-
 
 
 const schema = z.object({
-  businessDescription: z.string().min(1, "businessDescription is required"),
-  platform: z.string().min(1, "platform is required"),
-  tone: z.string().optional().default("professional"),
-  goal: z.string().optional().default("engagement"),
+  businessDescription: z.string().min(1, "businessDescription is required").max(5000, "businessDescription cannot exceed 5000 characters"),
+  platform: z.string().min(1, "platform is required").max(50),
+  tone: z.string().max(50).optional().default("professional"),
+  goal: z.string().max(50).optional().default("engagement"),
   postsCount: z.number().min(1).max(10).optional().default(3),
 });
 
