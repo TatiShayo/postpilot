@@ -7,8 +7,26 @@ import type {
   PaginatedResult,
 } from "./types";
 
-const DEFAULT_TOKEN_SECRET =
-  process.env.UNSUBSCRIBE_SECRET_KEY || "postpilot-unsubscribe-salt-key-default-2026";
+/**
+ * Unsubscribe-token signing secret.
+ *
+ * Must fail closed: this secret signs one-click unsubscribe links, so a
+ * guessable default lets anyone mint a valid token for any subscriber and
+ * suppress them from a list. A `NODE_ENV`-gated throw mirrors the pattern
+ * already used in solocrm's `unsubscribe-token.ts`.
+ */
+function resolveTokenSecret(): string {
+  const secret = process.env.UNSUBSCRIBE_SECRET_KEY;
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "UNSUBSCRIBE_SECRET_KEY must be set in production — unsubscribe tokens would otherwise be forgeable"
+    );
+  }
+  return "dev-only-unsubscribe-secret";
+}
+
+const DEFAULT_TOKEN_SECRET = resolveTokenSecret();
 const DEFAULT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 const MAX_BULK_SUBSCRIBERS = 10_000;

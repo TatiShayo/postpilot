@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderTemplate, validateTemplate, getNestedValue } from "../src/lib/template-engine";
+import { renderEmailTemplate, validateTemplate, getNestedValue } from "../src/lib/template-engine";
 
 describe("Template Engine Resilience & Depth Boundary", () => {
   it("safely handles deeply nested conditional structures without crash or stack overflow", () => {
@@ -14,7 +14,7 @@ describe("Template Engine Resilience & Depth Boundary", () => {
     }
 
     // Must not crash or loop infinitely
-    const rendered = renderTemplate(deepTemplate, context);
+    const rendered = renderEmailTemplate(deepTemplate, context);
     expect(typeof rendered).toBe("string");
   });
 
@@ -43,6 +43,6 @@ describe("Template Engine Resilience & Depth Boundary", () => {
     const hugeTemplate = "a".repeat(600_000);
     const validation = validateTemplate(hugeTemplate);
     expect(validation.valid).toBe(false);
-    expect(validation.errors.some((e) => e.includes("exceeds maximum allowed size"))).toBe(true);
+    expect(validation.errors.some((e) => e.includes("exceeds maximum limit"))).toBe(true);
   });
 });
