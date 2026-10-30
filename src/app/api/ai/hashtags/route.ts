@@ -3,7 +3,6 @@ import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-
 const schema = z.object({
   content: z.string().min(1, "content is required").max(4999, "content must be under 5000 characters"),
   platform: z.enum(["twitter", "linkedin", "instagram", "facebook", "tiktok"]).optional().default("twitter"),

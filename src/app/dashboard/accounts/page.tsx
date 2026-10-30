@@ -75,7 +75,6 @@ export default function AccountsPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Check if account already exists
     const existing = accounts.find(
       (a) => a.platform === connectModal
     );

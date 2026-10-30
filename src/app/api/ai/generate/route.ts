@@ -3,7 +3,6 @@ import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-
 const schema = z.object({
   businessDescription: z.string().min(1, "businessDescription is required").max(5000, "businessDescription cannot exceed 5000 characters"),
   platform: z.string().min(1, "platform is required").max(50),

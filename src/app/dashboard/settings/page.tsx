@@ -69,7 +69,6 @@ export default function SettingsPage() {
       }
     }
 
-    // Load settings from localStorage or use defaults
     const saved = localStorage.getItem("postpilot-settings");
     if (saved) {
       const parsed = JSON.parse(saved);

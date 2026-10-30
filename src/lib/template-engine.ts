@@ -53,7 +53,7 @@ export function escapeHtml(str: unknown): string {
 export function getNestedValue(obj: unknown, path: string): unknown {
   if (!obj || typeof obj !== "object") return undefined;
   if (typeof path !== "string") return undefined;
-  
+
   const cleanPath = path.replace(/[\x00-\x1F\x7F]/g, "").trim();
   if (!cleanPath) return undefined;
 
@@ -246,7 +246,7 @@ function renderConditionals(template: string, context: Record<string, any>): str
   const maxIterations = 25;
   let iter = 0;
   const innermostIfRegex = /\{\{#if\s+([^}]+)\}\}((?:(?!\{\{#if\b)[\s\S])*?)(?:\{\{else\}\}((?:(?!\{\{#if\b)[\s\S])*?))?\{\{\/if\}\}/;
-  
+
   while (iter < maxIterations && innermostIfRegex.test(rendered)) {
     iter++;
     rendered = rendered.replace(innermostIfRegex, (_match, conditionExpr, ifBlock, elseBlock = "") => {
@@ -355,19 +355,15 @@ export function renderEmailTemplate(
     ...options,
   };
 
-  // 1. Render loops
   let output = renderLoops(template, context, opts);
 
-  // 2. Render conditionals
   output = renderConditionals(output, context);
 
-  // 3. Render raw variables: {{{ var }}}
   output = output.replace(/\{\{\{\s*([^{}]+)\s*\}\}\}/g, (_match, expr) => {
     const { value } = evaluateExpression(expr, context, opts);
     return value !== undefined && value !== null ? String(value) : "";
   });
 
-  // 4. Render standard variables: {{ var }}
   output = output.replace(/\{\{\s*([^{}]+)\s*\}\}/g, (_match, expr) => {
     // Ignore any remaining block tags
     if (

@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    // Get or create Stripe customer
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")

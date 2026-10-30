@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
             ? "pro"
             : "free";
 
-          // Update profile
           await supabase
             .from("profiles")
             .update({ subscription_tier: tier })
@@ -114,7 +113,6 @@ export async function POST(request: NextRequest) {
 
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        // Handle any post-checkout logic
         break;
       }
 

@@ -5,7 +5,6 @@ import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-
 const postSchema = z.object({
   businessDescription: z.string().min(1, "businessDescription is required").max(5000, "businessDescription cannot exceed 5000 characters"),
   platforms: z.array(z.string().max(50)).max(10).optional().default(["twitter"]),

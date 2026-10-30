@@ -171,22 +171,18 @@ export function validateEmail(
 
   const email = rawEmail.trim();
 
-  // 1. Basic presence check
   if (!email) {
     return { isValid: false, error: "Email address cannot be empty." };
   }
 
-  // 2. Length check (RFC 5321 total limit <= 254 chars)
   if (email.length > 254) {
     return { isValid: false, error: "Email address exceeds maximum length of 254 characters." };
   }
 
-  // 3. Security: Prevent CRLF / Header Injection and Null Byte attacks
   if (/[\r\n\x00-\x1F\x7F]/.test(email)) {
     return { isValid: false, error: "Email contains forbidden control characters." };
   }
 
-  // 4. Must contain exactly one '@' that is not at the start or end
   const atCount = (email.match(/@/g) || []).length;
   if (atCount !== 1) {
     return {
@@ -199,7 +195,6 @@ export function validateEmail(
   const localPart = email.slice(0, atIndex);
   const domain = email.slice(atIndex + 1);
 
-  // 5. Local-part length check (RFC 5321 <= 64 octets)
   if (localPart.length === 0) {
     return { isValid: false, error: "Email local part cannot be empty." };
   }
@@ -207,7 +202,6 @@ export function validateEmail(
     return { isValid: false, error: "Email local part exceeds maximum length of 64 characters." };
   }
 
-  // 6. Domain length check (RFC 1035 <= 255 octets)
   if (domain.length === 0) {
     return { isValid: false, error: "Email domain cannot be empty." };
   }
@@ -215,7 +209,6 @@ export function validateEmail(
     return { isValid: false, error: "Email domain exceeds maximum length of 255 characters." };
   }
 
-  // 7. Local-part dot rules: no leading/trailing dot, no consecutive dots
   if (localPart.startsWith(".") || localPart.endsWith(".")) {
     return { isValid: false, error: "Email local part cannot start or end with a dot." };
   }
@@ -223,7 +216,6 @@ export function validateEmail(
     return { isValid: false, error: "Email local part cannot contain consecutive dots." };
   }
 
-  // 8. Local-part character validation (standard unquoted vs quoted)
   if (localPart.startsWith('"') && localPart.endsWith('"')) {
     // Quoted string local part
     const unquoted = localPart.slice(1, -1);
@@ -239,7 +231,6 @@ export function validateEmail(
     }
   }
 
-  // 9. Domain validation
   // Check for IP literal domain: e.g. [192.168.1.1]
   if (domain.startsWith("[") && domain.endsWith("]")) {
     const ip = domain.slice(1, -1);
@@ -289,11 +280,9 @@ export function validateEmail(
     }
   }
 
-  // 10. Subaddress parsing
   const subaddress = extractSubaddress(email);
   const canonicalEmail = `${subaddress.base}@${subaddress.domain}`;
 
-  // 11. Disposable domain check
   const isDisposable = isDisposableEmail(domain);
   if (!opts.allowDisposable && isDisposable) {
     return {
@@ -303,7 +292,6 @@ export function validateEmail(
     };
   }
 
-  // 12. Typo suggestion
   let typoSuggestion: string | null = null;
   if (opts.checkTypo) {
     const suggestedDomain = suggestEmailDomain(domain);

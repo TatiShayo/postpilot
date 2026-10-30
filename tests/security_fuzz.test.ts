@@ -41,9 +41,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     resetRateLimits();
   });
 
-  // =========================================================================
   // ARCHETYPE 1: IDOR & TENANT ISOLATION
-  // =========================================================================
   describe("Archetype 1: IDOR & Tenant Isolation", () => {
     it("prevents cross-tenant subscriber updates in bulkAddSubscribers", () => {
       const tenantA_sub: Subscriber = {
@@ -151,7 +149,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
 
     it("prevents cross-tenant token replay in verifyUnsubscribeToken", () => {
       const tokenForUserA = generateUnsubscribeToken("sub-123", "alice@example.com", "secret-key-1");
-      
+
       // Token verified against different subscriber ID
       const res1 = verifyUnsubscribeToken(tokenForUserA, "sub-999", "alice@example.com", "secret-key-1");
       expect(res1.valid).toBe(false);
@@ -166,9 +164,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 2: TOCTOU & CONCURRENCY
-  // =========================================================================
   describe("Archetype 2: TOCTOU & Concurrency", () => {
     it("prevents illegal re-entrant transitions from sending state", () => {
       const baseCampaign: Campaign = {
@@ -249,9 +245,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 3: PROTOTYPE POLLUTION & OBJECT KEY INJECTION
-  // =========================================================================
   describe("Archetype 3: Prototype Pollution & Object Key Injection", () => {
     it("getNestedValue returns undefined for __proto__, constructor, and prototype", () => {
       const obj = { normal: "value" };
@@ -290,7 +284,6 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
       expect(Object.prototype.hasOwnProperty.call(addedSub.custom_fields, "constructor")).toBe(false);
       expect(Object.keys(addedSub.custom_fields!)).not.toContain("__proto__");
       expect(Object.keys(addedSub.custom_fields!)).not.toContain("constructor");
-      // Ensure Object prototype was NOT polluted globally
       expect((({} as any).isAdmin)).toBeUndefined();
     });
 
@@ -312,9 +305,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 4: PARSER DESYNC & TEMPLATE INJECTION
-  // =========================================================================
   describe("Archetype 4: Parser Desync & Template Injection", () => {
     it("evaluates nested conditionals without parser desync", () => {
       const template =
@@ -393,9 +384,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 5: CRLF & HEADER INJECTION
-  // =========================================================================
   describe("Archetype 5: CRLF & Header Injection", () => {
     it("validateEmail rejects CRLF injection attempts", () => {
       const payloads = [
@@ -455,9 +444,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 6: ARITHMETIC EDGE CASES
-  // =========================================================================
   describe("Archetype 6: Arithmetic Edge Cases", () => {
     it("RateLimiter handles non-positive, NaN, and Infinity rate limits gracefully", () => {
       expect(() => new RateLimiter(0)).not.toThrow();
@@ -519,9 +506,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 7: REDOS & BUFFER LIMITS
-  // =========================================================================
   describe("Archetype 7: ReDoS & Buffer Limits", () => {
     it("validateEmail ReDoS fuzzing completes in sub-millisecond linear time", () => {
       const pathologicalEmails = [
@@ -550,7 +535,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     it("renderLoops bounds maximum loop iterations against huge list attacks", () => {
       const massiveList = Array.from({ length: 10_000 }, (_, i) => `Item ${i}`);
       const template = "Count: {{#each items}}*{{/each}}";
-      
+
       const t0 = performance.now();
       const result = renderEmailTemplate(template, { items: massiveList });
       const t1 = performance.now();
@@ -570,9 +555,7 @@ describe("DEFENSIVE VULNERABILITY PROBING & FUZZING SUITE", () => {
     });
   });
 
-  // =========================================================================
   // ARCHETYPE 8: CRYPTOGRAPHIC TIMING ATTACKS
-  // =========================================================================
   describe("Archetype 8: Cryptographic Timing Attacks", () => {
     it("verifyUnsubscribeToken verifies valid signature accurately", () => {
       const secret = "test-secret-salt-2026";

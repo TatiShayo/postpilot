@@ -3,7 +3,6 @@ import { getOpenAI } from "@/lib/openai";
 import { z } from "zod";
 import { guardAIRequest, wrapUntrusted, PROMPT_INJECTION_GUARD } from "@/lib/ai-guard";
 
-
 const platformGuides: Record<string, string> = {
   twitter: "Twitter/X style: concise, punchy, under 280 characters, use emojis sparingly, 1-2 relevant hashtags max.",
   linkedin: "LinkedIn style: professional, story-driven, longer form, use line breaks for readability, 3-5 relevant hashtags.",

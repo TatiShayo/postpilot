@@ -138,7 +138,6 @@ export function filterSubscribers(
   return subscribers.filter((sub) => {
     if (!sub || typeof sub !== "object") return false;
 
-    // 1. Status filter
     if (filter.status) {
       if (Array.isArray(filter.status)) {
         if (!filter.status.includes(sub.status)) return false;
@@ -147,7 +146,6 @@ export function filterSubscribers(
       }
     }
 
-    // 2. Tags filter
     if (filter.tags && filter.tags.length > 0) {
       const mode = filter.tagMatchMode ?? "any";
       const subTags = Array.isArray(sub.tags) ? sub.tags.map((t) => String(t).toLowerCase()) : [];
@@ -165,7 +163,6 @@ export function filterSubscribers(
       }
     }
 
-    // 3. Search query filter (matches email, first_name, last_name, or custom_fields)
     if (filter.search && typeof filter.search === "string" && filter.search.trim()) {
       const q = filter.search.trim().toLowerCase();
       const inEmail = sub.email ? sub.email.toLowerCase().includes(q) : false;
@@ -183,7 +180,6 @@ export function filterSubscribers(
       }
     }
 
-    // 4. Engagement score range
     const score = Number.isFinite(sub.engagement_score) ? sub.engagement_score : 0;
     if (filter.minEngagement !== undefined && Number.isFinite(filter.minEngagement) && score < filter.minEngagement) {
       return false;
@@ -192,7 +188,6 @@ export function filterSubscribers(
       return false;
     }
 
-    // 5. Creation date range
     if (filter.createdAfter) {
       const afterTime = new Date(filter.createdAfter).getTime();
       if (Number.isFinite(afterTime) && new Date(sub.created_at).getTime() < afterTime) return false;
@@ -230,7 +225,7 @@ export function paginateSubscribers<T>(
   const safePageSize = Math.max(1, Math.min(Math.floor(rawPageSize), 100));
   const total = items.length;
   const totalPages = Math.max(1, Math.ceil(total / safePageSize));
-  
+
   const rawPage = Number.isFinite(page) ? page : 1;
   const safePage = Math.max(1, Math.min(Math.floor(rawPage), totalPages));
 
